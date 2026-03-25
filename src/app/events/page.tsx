@@ -8,6 +8,8 @@ import {
   Typography,
   Button,
   Stack,
+  Select,
+  MenuItem,
 } from "@mui/material";
 
 type Event = {
@@ -21,6 +23,8 @@ type Event = {
 
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
     fetch("http://localhost:3001/events")
@@ -29,56 +33,76 @@ export default function EventsPage() {
       .then(console.log);
   }, []);
 
-  return (
+    const filteredEvents = events
+    .filter(e => !categoryFilter || e.category === categoryFilter)
+    .sort((a, b) => sortOrder === 'asc'
+      ? new Date(a.date).getTime() - new Date(b.date).getTime()
+      : new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+
+return (
     <Stack spacing={2}>
+      {/* Filters */}
+      <Stack direction="row" spacing={2}>
+        <Select
+          value={categoryFilter}
+          onChange={e => setCategoryFilter(e.target.value)}
+          displayEmpty
+        >
+          <MenuItem value="">All Categories</MenuItem>
+          <MenuItem value="Workshop">Workshop</MenuItem>
+          <MenuItem value="Entertainment">Entertainment</MenuItem>
+          <MenuItem value="Networking">Networking</MenuItem>
+        </Select>
 
-      <Typography variant="h4">
-        Events
-      </Typography>
+        <Select
+          value={sortOrder}
+          onChange={e => setSortOrder(e.target.value as 'asc' | 'desc')}
+        >
+          <MenuItem value="asc">Date Ascending</MenuItem>
+          <MenuItem value="desc">Date Descending</MenuItem>
+        </Select>
+      </Stack>
 
-      {events && Array.isArray(events) && events.map((e) => (
-
-        <Card key={e.id}>
-
-          <CardContent>
+      {/* Event Cards */}
+      {filteredEvents.map(event => (
+        <Card key={event.id}>
+        <CardContent>
 
             <Typography variant="h6">
-              {e.title}
+              {event.title}
             </Typography>
 
             <Typography>
-              {e.description}
+              {event.description}
             </Typography>
 
             <Typography>
-              {e.location}
+              {event.location}
             </Typography>
 
             <Typography>
-              {e.date}
+              {event.date}
             </Typography>
 
-            <Button href={`/events/${e.id}`}>
+            <Button href={`/events/${event.id}`}>
               Details
             </Button>
 
-            <Button href={`/events/edit/${e.id}`}>
+            <Button href={`/events/edit/${event.id}`}>
               Edit
             </Button>
 
           </CardContent>
-
         </Card>
-
       ))}
-
-      <Button
+        <Button
         variant="contained"
         href="/events/create"
       >
         Create event
       </Button>
-
     </Stack>
   );
+
 }

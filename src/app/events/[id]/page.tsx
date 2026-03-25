@@ -44,6 +44,19 @@ export default function EventDetails() {
             <Button href={`/events/edit/${event.id}`} variant="contained">
               Edit
             </Button>
+            
+            <Button
+                color="error"
+                variant="outlined"
+                onClick={async () => {
+                    if (confirm('Are you sure you want to delete this event?')) {
+                    await fetch(`http://localhost:3001/events/${event.id}`, { method: 'DELETE' });
+                    window.location.href = '/events';
+                    }
+                }}
+                >
+                Delete
+            </Button>
             <Button href="/events" variant="outlined">
               Back
             </Button>
