@@ -25,7 +25,8 @@ export default function EventsPage() {
   useEffect(() => {
     fetch("http://localhost:3001/events")
       .then((res) => res.json())
-      .then(setEvents);
+      .then(setEvents)
+      .then(console.log);
   }, []);
 
   return (
@@ -35,7 +36,7 @@ export default function EventsPage() {
         Events
       </Typography>
 
-      {events.map((e) => (
+      {events && Array.isArray(events) && events.map((e) => (
 
         <Card key={e.id}>
 

@@ -16,12 +16,17 @@ type Event = {
 export default function EventDetails() {
   const params = useParams();
   const [event, setEvent] = useState<Event | null>(null);
+  const [recommended, setRecommended] = useState<Event[]>([]);
 
   useEffect(() => {
     fetch(`http://localhost:3001/events/${params.id}`)
-      .then((res) => res.json())
+      .then(res => res.json())
       .then(setEvent);
-  }, []);
+
+    fetch(`http://localhost:3001/events/${params.id}/recommendations`)
+      .then(res => res.json())
+      .then(setRecommended);
+  }, [params.id]);
 
   if (!event) return <div>Loading...</div>;
 
@@ -45,6 +50,28 @@ export default function EventDetails() {
           </Stack>
         </CardContent>
       </Card>
+
+      <h2>Recommended Events</h2>
+      {recommended.length > 0 ? (
+        <Card>
+          <CardContent>
+            <Typography variant="h5" gutterBottom>
+              Recommended Events
+            </Typography>
+            <Stack spacing={1}>
+              {recommended.map(e => (
+                <Card key={e.id} variant="outlined">
+                  <CardContent>
+                    <Typography variant="subtitle1">{e.title}</Typography>
+                    <Typography variant="body2">{e.date.slice(0, 10)}</Typography>
+                    <Typography variant="body2">Category: {e.category}</Typography>
+                  </CardContent>
+                </Card>
+              ))}
+            </Stack>
+          </CardContent>
+        </Card>
+      ) : <p>Currently no similar events.</p>}
     </Stack>
   );
 }
